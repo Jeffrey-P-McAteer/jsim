@@ -66,7 +66,7 @@ fn main() {
     thread::spawn(move || run_actix(server_tx, port_tx).unwrap());
 
     let port = port_rx.recv().unwrap();
-    let server = server_rx.recv().unwrap();
+    // let server = server_rx.recv().unwrap();
 
     // start web view in current thread
     // and point it to a port that was bound
