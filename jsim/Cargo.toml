@@ -5,8 +5,9 @@ edition = "2021"
 authors = ["Jeffrey McAteer <jeffrey@jmcateer.com>"]
 
 [dependencies]
-
-
+rust-embed = "8.2"
+mime_guess = "2.0"
+actix-web = "4"
 
 [dependencies.web-view]
 version = "0.7"
