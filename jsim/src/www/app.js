@@ -10,9 +10,13 @@ window.sendMessageToServer = function sendMessageToServer(cmd) {
 }
 
 window.rust_click = function(evt) {
-  sendMessageToServer(""+evt);
-  var code = javascript.javascriptGenerator.workspaceToCode(window.workspace);
-  sendMessageToServer("code="+code);
+  try {
+    var code = javascript.javascriptGenerator.workspaceToCode(window.workspace);
+    sendMessageToServer("code="+code);
+  }
+  catch (err) {
+    sendMessageToServer("err="+err);
+  }
 };
 
 sendMessageToServer("test");
@@ -21,51 +25,126 @@ sendMessageToServer("test");
 Blockly.setLocale('En');
 
 const toolbox = {
-  // There are two kinds of toolboxes. The simpler one is a flyout toolbox.
-  kind: 'flyoutToolbox',
-  // The contents is the blocks and other items that exist in your toolbox.
-  contents: [
+  "kind": "categoryToolbox",
+  "contents": [
     {
-      kind: 'block',
-      type: 'controls_if'
+      "kind": "category",
+      "name": "Control",
+      "contents": [
+        {
+          "kind": "block",
+          "type": "controls_if"
+        },
+        {
+          kind: 'block',
+          type: 'controls_whileUntil'
+        },
+      ]
     },
     {
-      kind: 'block',
-      type: 'controls_whileUntil'
-    }
-    // You can add more blocks to this array.
+      "kind": "category",
+      "name": "Logic",
+      "contents": [
+        {
+          "kind": "block",
+          "type": "logic_compare"
+        },
+        {
+          "kind": "block",
+          "type": "logic_operation"
+        },
+        {
+          "kind": "block",
+          "type": "logic_boolean"
+        }
+      ]
+    },
+    {
+      "kind": "category",
+      "name": "Data",
+      "contents": [
+        {
+          "kind": "block",
+          "type": "text"
+        },
+        {
+          "kind": "block",
+          "type": "math_number"
+        },
+      ]
+    },
+    {
+      "kind": "category",
+      "name": "Misc",
+      "contents": [
+        {
+          "kind": "block",
+          "type": "string_length"
+        },
+        {
+          "kind": "block",
+          "type": "alert_text"
+        },
+      ]
+    },
   ]
 };
 
-/*
-const definitions = Blockly.createBlockDefinitionsFromJsonArray([
-  {
-    // The type is like the "class name" for your block. It is used to construct
-    // new instances. E.g. in the toolbox.
-    type: 'my_custom_block',
-    // The message defines the basic text of your block, and where inputs or
-    // fields will be inserted.
-    message0: 'move forward %1',
-    args0: [
-      // Each arg is associated with a %# in the message.
-      // This one gets substituted for %1.
-      {
-        // The type specifies the kind of input or field to be inserted.
-        type: 'field_number',
-        // The name allows you to reference the field and get its value.
-        name: 'FIELD_NAME',
-      }
-    ],
-    // Adds an untyped previous connection to the top of the block.
-    previousStatement: null,
-    // Adds an untyped next connection to the bottom of the block.
-    nextStatement: null,
-  }
-]);
 
-// Register the definition.
-Blockly.defineBlocks(definitions);
-*/
+
+Blockly.Blocks['string_length'] = {
+  init: function() {
+    this.jsonInit({
+      "message0": 'length of %1',
+      "args0": [
+        {
+          "type": "input_value",
+          "name": "VALUE",
+          "check": "String"
+        }
+      ],
+      "output": "Number",
+      "colour": 160,
+      "tooltip": "Returns number of letters in the provided text.",
+      "helpUrl": "http://www.w3schools.com/jsref/jsref_length_string.asp"
+    });
+  }
+};
+
+javascript.javascriptGenerator.forBlock['string_length'] = function(block, generator) {
+  // String or array length.
+  var argument0 = generator.valueToCode(block, 'VALUE', javascript.Order.FUNCTION_CALL) || '\'\'';
+  return [argument0 + '.length', javascript.Order.MEMBER];
+};
+
+
+
+Blockly.Blocks['alert_text'] = {
+  init: function() {
+    this.jsonInit({
+      "message0": 'alert text %1',
+      "args0": [
+        {
+          "type": "input_value",
+          "name": "VALUE",
+          "check": "String"
+        }
+      ],
+      "output": "",
+      "previousStatement": null,
+      "nextStatement": null,
+      "colour": 160,
+      "tooltip": "Outputs an alert.",
+    });
+  }
+};
+
+javascript.javascriptGenerator.forBlock['alert_text'] = function(block, generator) {
+  // String or array length.
+  var argument0 = generator.valueToCode(block, 'VALUE', javascript.Order.FUNCTION_CALL) || '\'\'';
+  return 'alert('+argument0 + ');';
+};
+
 
 
 const workspace = Blockly.inject(document.getElementById('blocklyDiv'), {
@@ -79,5 +158,3 @@ const code = javascript.javascriptGenerator.workspaceToCode(workspace);
 window.code = code;
 
 sendMessageToServer("code = "+code);
-
-
