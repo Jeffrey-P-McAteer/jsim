@@ -9,7 +9,11 @@ window.sendMessageToServer = function sendMessageToServer(cmd) {
     //throw new Error('Failed to locate webkit external handler')
 }
 
-window.rust_click = function(evt) { sendMessageToServer(""+evt); };
+window.rust_click = function(evt) {
+  sendMessageToServer(""+evt);
+  var code = javascript.javascriptGenerator.workspaceToCode(window.workspace);
+  sendMessageToServer("code="+code);
+};
 
 sendMessageToServer("test");
 
@@ -71,7 +75,7 @@ window.workspace = workspace;
 
 
 // A <script> tag defines window.javascript like an import
-const code = javascript.javascriptGenerator .workspaceToCode(workspace);
+const code = javascript.javascriptGenerator.workspaceToCode(workspace);
 window.code = code;
 
 sendMessageToServer("code = "+code);
