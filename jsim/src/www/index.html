@@ -7,8 +7,18 @@
   </head>
   <body>
     <h1 id="header">Welcome from jSim!</h1>
-    <script>
-
+    <button onclick="rust_click()">Click Me</button>
+    <script type="text/javascript">
+      window.sendMessageToServer = function sendMessageToServer(cmd) {
+          if (window.external !== undefined) {
+              return window.external.invoke(cmd);
+          } else if (window.webkit.messageHandlers.external !== undefined) {
+              return window.webkit.messageHandlers.external.postMessage(cmd);
+          }
+          throw new Error('Failed to locate webkit external handler')
+      }
+      window.rust_click = function(evt) { sendMessageToServer(""+evt); };
+      sendMessageToServer("test");
     </script>
   </body>
 </html>
