@@ -21,6 +21,10 @@ todo
 
 ```bash
 cargo run --release
+
+# Set runtime options via env vars
+ALLOW_DEBUG=t HTTP_PORTNUM=8080 cargo run --release
+
 ```
 
 
