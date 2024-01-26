@@ -18,6 +18,8 @@ async fn assets(req: HttpRequest) -> HttpResponse {
         &req.path()[1..]
     };
 
+    println!("serving path: {}", &path);
+
     // query the file from embedded asset with specified path
     match Asset::get(path) {
         Some(content) => {
@@ -37,11 +39,15 @@ fn run_actix(server_tx: mpsc::Sender<Server>, port_tx: mpsc::Sender<u16>) -> std
     let server = rt::System::new();
 
     server.block_on(async {
+        let bind_portnum = std::env::var("HTTP_PORTNUM").unwrap_or("0".to_string());
+        let bind_addr = format!("127.0.0.1:{}", bind_portnum);
         let server = HttpServer::new(|| App::new()
-              .service( web::resource("*").route(web::get().to(assets)) )
-              .service( web::resource("*").route(web::post().to(assets)) )
+              .default_service( web::to(assets)
+                //.route(web::get().to(assets))
+                //.route(web::post().to(assets))
+              )
             )
-            .bind("127.0.0.1:0")?;
+            .bind(&bind_addr)?;
 
         // we specified the port to be 0,
         // meaning the operating system
@@ -53,6 +59,7 @@ fn run_actix(server_tx: mpsc::Sender<Server>, port_tx: mpsc::Sender<u16>) -> std
         port_tx.send(port).unwrap();
 
         let server = server.run();
+
         //server_tx.send(server).unwrap();
         server.await
     })
